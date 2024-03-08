@@ -1,0 +1,16 @@
+@if (isAuthenticated()) {
+    <div class="container mt-4">
+        <h1 class="text-align-center">Entidades</h1>
+    
+        <div class="row">
+            @for (collections of getCollections(); track collections.id) {
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <app-collection [collection]="collections"></app-collection>
+                </div>
+            }
+        </div>
+    </div>
+}
+@else {
+    ERROR, DEBES ESTAR LOGEADO.
+}

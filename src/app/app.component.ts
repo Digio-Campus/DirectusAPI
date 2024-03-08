@@ -1,13 +1,27 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { LoginComponent } from './login/login.component';
+import { LoginService } from './login.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  imports: [RouterOutlet, LoginComponent, RouterModule],
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   title = 'DirectusAPI';
+
+  constructor(private loginService:LoginService) {
+
+  }
+
+
+  isLoggedIn() {
+    return this.loginService.getAuthenticationStatus();
+  }
+
+  logOut() {
+    this.loginService.logOut();
+  }
 }
