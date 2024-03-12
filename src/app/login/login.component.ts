@@ -1,22 +1,25 @@
 import { Component } from '@angular/core';
 import { LoginService } from '../login.service';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, FormsModule],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
 
-  private email:any = "";
-  private password:any = "";
   constructor(private loginService:LoginService, private router:Router) { }
 
-  processLogin(email:string, password:string) {
-    event?.preventDefault()
-    this.loginService.login(email,password);
+  userCredentials:any = {
+    email: "",
+    password: ""
+  }
+
+  processLogin() {
+    this.loginService.login(this.userCredentials);
   }
 
 }

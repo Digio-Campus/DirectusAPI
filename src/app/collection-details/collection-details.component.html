@@ -1,19 +1,21 @@
 @if (isAuthenticated()) {
     <div class="container mt-5">
         <h1>{{collection}}</h1>
+        <!--<h1 [(ngModel)]="collection">{{collection}}</h1>-->
     
         <div class="d-flex justify-content-center">
     
             <table class="table">
                 <thead>
-    
                     @for (field of getFields(); track $index) {
                     <th scope="col">{{field.toUpperCase()}}</th>
                     }
                 </thead>
     
                 <tbody>
-                    @for (item of getCollectionItems(); track $index) {
+                    @for (item of this.directusService.getCollectionItems(); track $index) {
+                        <!--<td>{{item.id}}</td>-->
+
                     <tr>
                         @for (field of getFields(); track $index) {
                             <td>{{item[field]}}</td>
