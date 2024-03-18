@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { ContentComponent } from './content/content.component';
 import { CollectionDetailsComponent } from './collection-details/collection-details.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
     {
@@ -22,5 +23,10 @@ export const routes: Routes = [
     { 
         path: 'collectionDetails/:collection', 
         component: CollectionDetailsComponent
-    }
+    },
+    {
+        path: 'profile',
+        component: ProfileComponent,
+        title: 'Profile',
+    },
 ];

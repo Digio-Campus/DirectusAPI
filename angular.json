@@ -87,7 +87,10 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/bootstrap.min.js",
+              "src/jquery.min.js"
+            ]
           }
         }
       }

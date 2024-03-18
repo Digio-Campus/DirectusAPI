@@ -1,20 +1,28 @@
-import { Component, Input, inject, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, Input, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { DirectusService } from '../directus.service';
 import { CollectionDetailsComponent } from '../collection-details/collection-details.component';
+import { LanguagesService } from '../languages.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-collection',
   standalone: true,
-  imports: [],
+  imports: [RouterModule, CollectionDetailsComponent],
   templateUrl: './collection.component.html'
 })
 export class CollectionComponent {
   @Input() collection:any
   cat = 0
+  private subscription: Subscription;
+  public lang:any = (localStorage.getItem('language') || 'default');
 
-  constructor(private directusService:DirectusService) { 
-    // this.sendDataToChild()
+
+  constructor(private directusService:DirectusService, private languagesService:LanguagesService) { 
+    this.subscription = this.languagesService.collectionId$.subscribe(langId => {
+      this.lang = langId;
+
+    });
   }
 
   router = inject(Router);
@@ -22,29 +30,14 @@ export class CollectionComponent {
   mostrarDatos(collection:any) {
 
     collection = {
-      collection: collection.collection
+      collection: collection
     }
 
-    // const collect = {
-    //   collection: collection.collection,
-    //   items: this.directusService.fetchCollectionItems(collection.collection)
-    // }
-    // console.log("mostrar " + collect.collection)
-
+    // Guardamos la colección en el sessionStorage
+    sessionStorage.setItem('collection', JSON.stringify(collection));
 
     console.log("MOSTRAR DATOS")
-    // this.directusService.fetchCollectionItems(collection.collection);
-    // this.directusService.fetchFields(this.collection.collection);
-
-    this.router.navigate(['/collectionDetails', collection.collection]);
-    // this.router.navigate(['/contentDetails']);
+    this.router.navigate(['/collectionDetails', collection.collection.collection]);
   }
-
-  // @ViewChild(CollectionDetailsComponent) childComponent!: CollectionDetailsComponent;
-
-  // sendDataToChild() {
-  //   const dataToSend = 'Datos del padre al hijo';
-  //   this.childComponent.processData(dataToSend);
-  // }
 
 }

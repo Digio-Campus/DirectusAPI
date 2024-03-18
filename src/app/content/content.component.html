@@ -14,7 +14,8 @@
 
     <button (click)="download()">Descargar</button>
     <input type="file" (change)="handleFileInput($event)">
-
+    <button (click)="refreshToken()">Refresh Token</button>
+    <button (click)="isTokenExpired()">isTokenExpired</button>
 }
 @else {
     ERROR, DEBES ESTAR LOGEADO.

@@ -1,6 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs';
+import { LoginService } from './login.service';
+import { LanguagesService } from './languages.service';
+import { consumerPollProducersForChange } from '@angular/core/primitives/signals';
 
 @Injectable({
   providedIn: 'root'
@@ -11,20 +14,24 @@ export class DirectusService {
   private collections: any[] = [];
   private collectionItems:any[] = []
   private fields: any[] = [];
+  private base = "http://localhost:8055/";
   private urlBase = "http://localhost:8055/items/"
   private urlFields = "http://localhost:8055/"
   private urlCollections = "http://localhost:8055/collections"
   // Course?access_token=N9dMkfzgZmSYt81ZfJnwRibPvUm0IOW-
 
+  private fileID:any;
+
   private translations: any[] = [];
-  private test: any[] = [];
+  private test: any;
+  private userData: any[] = [];
   private allFields: any[] = [];
   private variablePrueba: any[] = [];
   private allCollectionItems:any[] = [];
 
   private collectionFields: any[] = [];
 
-  constructor(private httpClient: HttpClient, private ngZone:NgZone ) {
+  constructor(private httpClient: HttpClient, private ngZone:NgZone, private loginService:LoginService, private languageService:LanguagesService ) {
 
     this.data = JSON.parse(localStorage.getItem("data") || '[]');
     // this.collections = JSON.parse(localStorage.getItem("collections") || '[]');
@@ -56,7 +63,9 @@ export class DirectusService {
       .subscribe({
         next: ((response: any) => {
           this.collections = response.data;
-          // localStorage.setItem("collections", JSON.stringify(response.data))
+
+          // Guardamos la colección en el sessionStorage
+          // sessionStorage.setItem("collections", JSON.stringify(response.data))
         }),
         error: (error => {
           console.error(error);
@@ -81,11 +90,11 @@ export class DirectusService {
         }),
         error: (error => {
           console.error("ERROR: " + error);
-        }),
-        complete: () => {
-          // console.log("FETCH COLLECTION ITEMS COMPLETADO")
-          // localStorage.setItem("collectionItems", JSON.stringify(this.collectionItems))
-        }
+          console.log("ERROR CAPTURADO!")
+          // this.loginService.rfrToken().subscribe(() => {
+          //   console.log("SE EJECTUO EL REFRESH TOKEN")
+          // });
+        })
 
       });
 
@@ -105,50 +114,43 @@ export class DirectusService {
           }
         });
 
-        // console.log(" wruioefweuof ")
-        // this.fields = translationsArray;
-        console.log(this.fields)
-
       })
+
+      // return this.fields;
   }
 
-  // fetchAllFields() {
-  //   this.httpClient.get(this.urlFields + "fields/")
-  //   .subscribe((response: any) => {
-  //     const translationsArray: any = [];
+  fetchCurrentUser() {
+    return this.httpClient.get(this.base + "users/me");
 
-  //     response.data.forEach((e: any) => {
-  //       if (e.meta.translations != null) {
-  //         translationsArray.push(e.meta.translations);
-  //         localStorage.setItem("allFields", JSON.stringify(response.data))
-  //       }
-  //     });
+    // this.httpClient.get(this.base + "users/me").subscribe((response:any) => {
+    //   sessionStorage.setItem('user2', JSON.stringify(response.data));
+    //   this.userData = response.data;
 
-  //     this.fields = translationsArray;
-  //     console.log(this.fields)
+    //   console.log("DENTRO FETCH CURRENT USER: " + this.userData)
+    // })
+    // this.httpClient.get(this.base + "users/me").subscribe({
+    //   next: ((response: any) => {
+    //     this.userData = response.data;
 
-  //   })
-  // }
-  // fetchFields(collection: string, token: string) {
-  //   this.httpClient.get(this.urlFields + "fields/" + collection + "?access_token=" + token)
-  //     .subscribe((response: any) => {
-  //       // this.fields = response.data;
-  //       const translationsArray: any = [];
+    //     // Guardamos la colección en el sessionStorage
+    //     // sessionStorage.setItem("collections", JSON.stringify(response.data))
+    //   }),
+    //   error: (error => {
+    //     console.error(error);
+    //   })
+    // });
 
-  //       response.data.forEach((e: any) => {
-  //         if (e.meta.translations != null) {
-  //           console.log("Entidad: " + e.collection + " traducciones " + e.meta.translations[0].translation)
-  //           translationsArray.push(e.meta.translations);
-  //           localStorage.setItem("fields", JSON.stringify(response.data))
-  //         }
-  //       });
+  }
 
-  //       console.log(" wruioefweuof ")
-  //       this.fields = translationsArray;
-  //       console.log(this.fields)
+  getCurrentUser() { 
+    return this.userData;
+  }
 
-  //     })
-  // }
+  createItem(collection: string, item: any) {
+    // Dada una colleccion, nos interesaria obtener un objeto para conocer su estructura, cada collection tendra un objeto con sus propios campos
+    
+     return this.httpClient.post('http://localhost:8055/items/' + collection, item);
+   }
 
   downloadFile(fileUrl: string) {
     // const headers = new HttpHeaders({
@@ -181,23 +183,43 @@ export class DirectusService {
       });
   }
 
-  uploadFile(file: File): void {
+  uploadFile(file: File) {
 
     //Inicializamos un objeto formulario
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
 
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem('user') || '[]').access_token
-    });
 
-    this.httpClient.post('http://localhost:8055/files', formData, { headers: headers })
-      .subscribe(response => {
-        console.log('Archivo subido con éxito:', response);
-      }, error => {
-        console.error('Error al subir el archivo:', error);
-      });
+    // const headers = new HttpHeaders({
+    //   'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem('user') || '[]').access_token
+    // });
+
+    this.httpClient.post('http://localhost:8055/files', formData).subscribe((response:any) => {
+            console.log('Archivo subido con éxitoo:', response);
+            this.fileID = response.data.id;
+          }, error => {
+            console.error('Error al subir el archivo:', error);
+          });
   }
+  // uploadFile(file: File): void {
+
+  //   //Inicializamos un objeto formulario
+  //   const formData: FormData = new FormData();
+  //   formData.append('file', file, file.name);
+
+  //   const headers = new HttpHeaders({
+  //     'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem('user') || '[]').access_token
+  //   });
+
+  //   this.httpClient.post('http://localhost:8055/files', formData, { headers: headers })
+  //     .subscribe((response:any) => {
+  //       console.log('Archivo subido con éxito:', response);
+  //     }, error => {
+  //       console.error('Error al subir el archivo:', error);
+  //     });
+
+  //     console.log("PRUEBA DE ASIGNACION: " + FileID);
+  // }
 
   getData() {
     return this.data;
@@ -212,14 +234,21 @@ export class DirectusService {
   }
 
   getFields() {
+    // if(sessionStorage.getItem('language') != 'default') {
+    //   this.fields = this.languageService.checkLanguage((sessionStorage.getItem('language') || ''), this.fields);
+    // }
     return this.fields;
+  }
+
+  getFileID() {
+    return this.fileID;
   }
 
 
 
 
   getPruebas() {
-    return this.allCollectionItems;
+    return this.test;
   }
 
 

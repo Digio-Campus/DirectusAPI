@@ -2,18 +2,19 @@ import { Component } from '@angular/core';
 import { DirectusService } from '../directus.service';
 import { LoginService } from '../login.service';
 import { CollectionComponent } from '../collection/collection.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CollectionComponent],
+  imports: [CollectionComponent, RouterModule],
   templateUrl: './content.component.html'
 })
 export class ContentComponent {
   private access_token = JSON.parse(sessionStorage.getItem("user") || '[]').access_token;
   private contenedor:any[] = [];
 
-  cat = 0
+  lang:any;
   
   constructor(private directusService:DirectusService, private loginService:LoginService) {
 
@@ -23,23 +24,14 @@ export class ContentComponent {
 
     this.directusService.fetchCollections();
 
+    console.log("PRUEBA DE GET COLLECTIONS: " + this.getCollections())
+
+
 
   }
 
   getCollections() {
     return this.directusService.getCollections();
-  }
-
-  // getColls() {
-  //   this.directusService.getColls().subscribe({
-  //     next: ((res:any) => {
-  //       this.contenedor = res.data;
-  //     })
-  //   })
-  // }
-
-  getColls2() {
-    return this.contenedor;
   }
 
   isAuthenticated() {
@@ -60,5 +52,15 @@ export class ContentComponent {
     } else {
       console.error('No se seleccionó ningún archivo.');
     }
+  }
+
+  refreshToken() {
+    console.log("refresh token")
+    this.loginService.rfrToken()?.subscribe(() => {});
+  }
+
+  isTokenExpired() {
+    console.log("IS TOKEN EXPIRED?" + this.loginService.isTokenExpired())
+    return this.loginService.isTokenExpired();
   }
 }

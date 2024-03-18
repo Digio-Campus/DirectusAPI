@@ -1,0 +1,63 @@
+@if (!respuesta) {
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Create {{getCollection()}}</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- Formulario para crear objeto -->
+
+            <form>
+                @for (item of getFields(); track $index) {
+                @if (item == 'logo') {
+                <div class="mb-3">
+                    <label for="{{item}}" class="form-label">{{item}}</label>
+                    <input name="{{item}}" type="file" class="form-control" (change)="handleFileInput($event)">
+                </div>
+                }
+                @else {
+                <div class="mb-3">
+                    <label for="{{item}}" class="form-label">{{item}}</label>
+                    <input [(ngModel)]="camposValores[item]" name="{{item}}" type="text" class="form-control"
+                        id="{{item}}" placeholder="Enter a {{item}}">
+                </div>
+                }
+                }
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button (click)="getFileID()" type="button" class="btn btn-primary">Aceptar</button>
+                    <button (click)="createItem()" type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+            </form>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+}
+@else {
+
+<div class="modal-dialog" role="document" id="createObject2">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Resultado</h5>
+            <button (click)="closeModal()" type="button" class="btn-close" data-dismiss="modal"
+                aria-label="Close"></button>
+
+        </div>
+        <div class="modal-body">
+            <!-- Mensaje de confirmación -->
+            <p>{{getMensajeError()}}</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">Aceptar</button>
+            <button (click)="respuesta = false" type="button" class="btn btn-primary" aria-label="Close">asd</button>
+        </div>
+    </div>
+</div>
+
+}
