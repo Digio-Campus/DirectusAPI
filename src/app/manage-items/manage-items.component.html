@@ -1,63 +1,121 @@
-@if (!respuesta) {
-<div class="modal-dialog" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Create {{getCollection()}}</h5>
-            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <!-- Formulario para crear objeto -->
+<!--@if (!respuesta) {-->
 
-            <form>
-                @for (item of getFields(); track $index) {
-                @if (item == 'logo') {
-                <div class="mb-3">
-                    <label for="{{item}}" class="form-label">{{item}}</label>
-                    <input name="{{item}}" type="file" class="form-control" (change)="handleFileInput($event)">
-                </div>
-                }
-                @else {
-                <div class="mb-3">
-                    <label for="{{item}}" class="form-label">{{item}}</label>
-                    <input [(ngModel)]="camposValores[item]" name="{{item}}" type="text" class="form-control"
-                        id="{{item}}" placeholder="Enter a {{item}}">
-                </div>
-                }
-                }
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button (click)="getFileID()" type="button" class="btn btn-primary">Aceptar</button>
-                    <button (click)="createItem()" type="submit" class="btn btn-primary">Enviar</button>
-                </div>
-            </form>
+<div id="contenedor" class="container">
+    <div class="modal-dialog" ngClass role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create {{getCollection()}}</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
 
+                <form>
+                    @for (item of getFields(); track $index) {
+                        @if (item.field == 'logo') {
+                        <div class="mb-3">
+                            <label for="{{item.field}}" class="form-label">{{item.field}}</label>
+                            <input name="{{item.field}}" type="file" class="form-control"
+                                (change)="handleFileInput($event)">
+                        </div>
+                        }
+
+                        @else if (item.meta.special == 'm2o') {
+
+                            @for (item2 of getSpecialFields(); track $index) {
+
+                                @if (item2.collection == capitalize(item.field)) {
+                                    <div class="mb-3">
+
+                                    <label for="{{item.field}}" class="form-label">{{item.field}}</label>
+
+                                        <select [(ngModel)]="camposValores[item.field]" name="{{item.field}}" class="form-select" aria-label="Default select example">
+                                        @for (item3 of item2.items; track $index) {
+                                            <option value="{{item3.id}}" >{{item3.name}}</option>
+                                    }
+                                        </select>
+
+                                    </div>
+                                    
+                                }
+                            }
+
+                        }
+                        @else if (item.meta.special == 'm2m') {
+                            @for (item2 of getSpecialFields(); track $index) {
+                                            
+                                @if (item2.collection == capitalize(item.field)) {
+
+                                    <label class="form-check-label" for="">
+                                        {{item2.collection}}
+                                    </label>
+                                    @for (item3 of item2.items; track $index) {
+                                    <div class="form-check">
+
+                                        @if(item3.name) {
+                                            <input [(ngModel)]="subjects[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
+                                            <label  class="form-check-label" for="{{item3.name}}">
+                                                {{item3.name}}
+                                            </label>
+                                        }
+                                        @else {
+                                            <input [(ngModel)]="subjects[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
+                                            <label  class="form-check-label" for="{{item3.name}}">
+                                                {{item3.question}}
+                                            </label>
+                                        }
+                                    </div>
+                                        
+                                    }
+                                }
+                            }
+                            
+
+                        }
+                        @else {
+
+                        <div class="mb-3">
+                            <label for="{{item.field}}" class="form-label">{{item.field}}</label>
+                            <input [(ngModel)]="camposValores[item.field]" name="{{item.field}}" type="text"
+                                class="form-control" id="{{item.field}}" placeholder="Enter a {{item.field}}">
+                        </div>
+                        }
+                    }
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary">Aceptar</button>
+                        <button (click)="createItem()" data-dismiss="modal" type="submit"
+                            class="btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+
+
+            </div>
 
         </div>
 
     </div>
-
 </div>
 
-}
-@else {
 
-<div class="modal-dialog" role="document" id="createObject2">
+<!--}-->
+<!--@else {
+
+<div #miModal class="modal-dialog" role="document" id="createObject2">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">Resultado</h5>
-            <button (click)="closeModal()" type="button" class="btn-close" data-dismiss="modal"
+            <button (click)="cerrarModal()" type="button" class="btn-close" data-dismiss="modal"
                 aria-label="Close"></button>
 
         </div>
         <div class="modal-body">
-            <!-- Mensaje de confirmación -->
             <p>{{getMensajeError()}}</p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">Aceptar</button>
-            <button (click)="respuesta = false" type="button" class="btn btn-primary" aria-label="Close">asd</button>
+            <button (click)="closeModal()" type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">Aceptar</button>
         </div>
     </div>
 </div>
 
-}
+}-->

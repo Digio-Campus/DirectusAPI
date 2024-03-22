@@ -1,111 +1,131 @@
 @if (isAuthenticated()) {
-<div class="container mt-5">
 
-    @if (lang != 'default') {
-    <!--<h1>{{prueba.collection.meta.translations[0].translation}}</h1>-->
-
-    @for (item of prueba.collection.meta.translations; track $index) {
-    @if (item.language == lang) {
-    <h1>{{item.translation}}</h1>
+<div id="contenedor" class="container">
+    @if (datosHijo == "1") {
+        <div class="alert alert-success d-flex align-items-center mt-2" role="alert">
+            <div>
+              {{getCollection()}} inserted successfully
+            </div>
+          </div>
     }
-    }
-
-    }
-    @else {
-    <h1>{{prueba.collection.collection}}</h1>
-    }
-
-    <!-- Botones de acciones -->
-
-
-    <div class="d-flex justify-content-center">
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    @for (field of getFields(); track $index) {
-
-                    @if (lang !== 'default') {
-                    @if (field.field == "id") {
-                    <th>{{field.field.toUpperCase()}}</th>
-                    }
-
-                    @for (item of field.meta.translations; track $index) {
-                    <th>{{item.translation.toUpperCase()}}</th>
-                    }
-
-                    }
-                    @else {
-                    <th>{{field.field.toUpperCase()}}</th>
-                    }
-
-                    }
-                    <th>ACTIONS</th>
-                </tr>
-
-                @if (lang != undefined) {
-
-
-                }
-
-            </thead>
-
-            <tbody>
-                @for (item of getCollectionItems(); track $index) {
-                <!--<td>{{item.id}}</td>-->
-
-                <tr>
-                    @for (field of getFields(); track $index) {
-                    <td>{{item[field.field]}}</td>
-                    }
-                    <td>
-                        <button class="btn btn-primary my-2" style="width: 80px;">Editar</button>
-                        <button class="btn btn-danger">Eliminar</button>
-                    </td>
-                </tr>
-                }
-                <tr>
-
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="row mb-3">
-        <div class="col">
-            <button class="btn btn-primary mr-2" data-toggle="modal"
-                data-target="#createObject">Añadir Datos</button>
-            <button class="btn btn-danger mx-2" data-toggle="modal"
-                data-target="#confirmModal">Eliminar Entidad</button>
+    @else if (datosHijo == "2") {
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <div>
+          {{getCollection()}} not inserted
         </div>
-    </div>
-    <button routerLink="/home" class="btn btn-primary">Volver</button>
-</div>
+      </div>
+    }
+    <div class="container mt-5">
 
-<!-- Modal para borrar un objeto de la collection -->
-<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                ¿Estás seguro de que deseas realizar esta acción?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="realizarAccion()">Aceptar</button>
+        @if (lang != 'default') {
+        <!--<h1>{{prueba.collection.meta.translations[0].translation}}</h1>-->
+
+        @for (item of prueba.collection.meta.translations; track $index) {
+        @if (item.language == lang) {
+        <h1>{{item.translation}}</h1>
+        }
+        }
+
+        }
+        @else {
+        <h1>{{prueba.collection.collection}}</h1>
+        }
+
+        <!-- Botones de acciones -->
+
+
+        <div class="d-flex justify-content-center">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        @for (field of getFields(); track $index) {
+
+                        @if (lang !== 'default') {
+                        @if (field.field == "id") {
+                        <th>{{field.field.toUpperCase()}}</th>
+                        }
+
+                        @for (item of field.meta.translations; track $index) {
+                        <th>{{item.translation.toUpperCase()}}</th>
+                        }
+
+                        }
+                        @else {
+                        <th>{{field.field.toUpperCase()}}</th>
+                        }
+
+                        }
+                        <th>ACTIONS</th>
+                    </tr>
+
+                    @if (lang != undefined) {
+
+
+                    }
+
+                </thead>
+
+                <tbody>
+                    @for (item of getCollectionItems(); track $index) {
+                    <!--<td>{{item.id}}</td>-->
+
+                    <tr>
+                        @for (field of getFields(); track $index) {
+                        <td>{{item[field.field]}}</td>
+                        }
+                        <td>
+                            <button class="btn btn-primary my-2" style="width: 80px;">Editar</button>
+                            <button (click)="deleteCollectionItem(item.id)" class="btn btn-danger">Eliminar</button>
+                        </td>
+                    </tr>
+                    }
+                    <tr>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <button class="btn btn-primary mr-2" data-toggle="modal"
+                    data-target="#createObject">Añadir Datos</button>
+                <button (click)="deleteCollection()" class="btn btn-danger mx-2" data-toggle="modal" data-target="#confirmModal">Eliminar
+                    Entidad</button>
             </div>
         </div>
+        <button routerLink="/home" class="btn btn-primary">Volver</button>
+    </div>
+
+    <!-- Modal para borrar un objeto de la collection -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas realizar esta acción?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="realizarAccion()">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear un objeto -->
+    <div class="modal fade" id="createObject" tabindex="-1" role="dialog" aria-labelledby="createObjectLabel"
+        aria-hidden="true">
+        <app-manage-items [collection]="getCollection()" (respuesta)="getDatosHijo($event)" ></app-manage-items>
     </div>
 </div>
 
-<!-- Modal para crear un objeto -->
-<div class="modal fade" id="createObject" tabindex="-1" role="dialog" aria-labelledby="createObjectLabel"
-    aria-hidden="true">
-    <app-manage-items [collection]="getCollection()"></app-manage-items>
-</div>
+
+
 }
 @else {
 ERROR, DEBES ESTAR LOGEADO.

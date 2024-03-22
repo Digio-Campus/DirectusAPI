@@ -15,6 +15,11 @@ import { ManageItemsComponent } from '../manage-items/manage-items.component';
   templateUrl: './collection-details.component.html'
 })
 export class CollectionDetailsComponent {
+
+  datosHijo:any;
+
+
+
   private collection:any;
   public lang:any = (localStorage.getItem('language') || 'default');
   private subscription: Subscription;
@@ -52,18 +57,27 @@ export class CollectionDetailsComponent {
 
     });
 
-    // this.getFields();
-
     let prueba = this.languagesService.checkLanguage(this.lang, this.directusService.getFields());
-    // console.log("PRUEBAAAA " + prueba)
 
-    // console.log("GET FIELDS: " + JSON.stringify(this.getFields()  ));
+    console.log("MOSTRAR DATOS HIJO: " + this.datosHijo);
 
   }
 
   getCollectionItems() {
     return this.directusService.getCollectionItems();
   }
+  
+  deleteCollectionItem(id: string) { 
+    this.directusService.deleteItem(this.collection, id).subscribe((response: any) => {
+      console.log('Item eliminado con éxito:', response);
+      this.directusService.fetchCollectionItems(this.collection);
+    });
+  }
+
+  deleteCollection() {
+    console.log("GET ESPECIAL FIELDS DESDE COLLECTION DETAILS:  "  + JSON.stringify(this.directusService.getSpecialFields()));
+  }
+
 
   getFields():any {
     // if( this.languagesService.comprobarCampos(this.lang, this.directusService.getFields()) ) {
@@ -93,6 +107,11 @@ export class CollectionDetailsComponent {
 
   getCollection() {
     return this.collection;
+  }
+
+  getDatosHijo(data:string) {
+    console.log("DATOS HIJO: " + data);
+    this.datosHijo = data;
   }
 
 }
