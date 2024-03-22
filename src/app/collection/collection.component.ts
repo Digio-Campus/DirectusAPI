@@ -13,7 +13,6 @@ import { Subscription } from 'rxjs';
 })
 export class CollectionComponent {
   @Input() collection:any
-  cat = 0
   private subscription: Subscription;
   public lang:any = (localStorage.getItem('language') || 'default');
 

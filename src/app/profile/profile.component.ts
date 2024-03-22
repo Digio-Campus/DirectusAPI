@@ -11,14 +11,7 @@ export class ProfileComponent {
   private userData:any[] = [];
 
   constructor(private directusService:DirectusService) { 
-    
-
-    // this.directusService.fetchCurrentUser();
-    // console.log("DESDE EL CONSTRUCTOR DE PROFILEEE" + this.fetchProfile())
-
     this.fetchProfile();
-
-    console.log("THIS GET PROFILE: " + this.getProfile().id);
   }
 
   fetchProfile() {
@@ -26,12 +19,8 @@ export class ProfileComponent {
       sessionStorage.setItem('user', JSON.stringify(response.data));
       this.userData = response.data;
 
-      console.log("DENTRO FETCH CURRENT USER: " + this.userData)
     })
 
-    // console.log("USERDATA: " + this.userData)
-
-    // this.directusService.getCurrentUser();
   }
 
   getProfile() {
