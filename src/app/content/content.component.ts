@@ -11,23 +11,10 @@ import { RouterModule } from '@angular/router';
   templateUrl: './content.component.html'
 })
 export class ContentComponent {
-  private access_token = JSON.parse(sessionStorage.getItem("user") || '[]').access_token;
-  private contenedor:any[] = [];
-
   lang:any;
   
   constructor(private directusService:DirectusService, private loginService:LoginService) {
-
-    // if (this.isAuthenticated()) {
-    //   this.directusService.fetchCollections(this.access_token);
-    // }
-
     this.directusService.fetchCollections();
-
-    console.log("PRUEBA DE GET COLLECTIONS: " + this.getCollections())
-
-
-
   }
 
   getCollections() {

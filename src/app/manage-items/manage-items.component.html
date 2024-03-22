@@ -41,42 +41,64 @@
 
                         }
                         @else if (item.meta.special == 'm2m') {
-                            @for (item2 of getSpecialFields(); track $index) {
+
+                            @if (item.meta.field == 'students' || item.meta.field == 'teachers') {
+                                @for (item2 of getSpecialFields(); track $index) {
                                             
-                                @if (item2.collection == capitalize(item.field)) {
-
-                                    <label class="form-check-label" for="">
-                                        {{item2.collection}}
-                                    </label>
-                                    @for (item3 of item2.items; track $index) {
-                                    <div class="form-check">
-
-                                        @if(item3.name) {
-                                            <input [(ngModel)]="subjects[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
-                                            <label  class="form-check-label" for="{{item3.name}}">
-                                                {{item3.name}}
+                                    @if (item2.collection == capitalize(item.field)) {
+    
+                                        <label class="form-check-label" for="">
+                                            {{item2.collection}}
+                                        </label>
+                                        @for (item3 of item2.items; track $index) {
+                                        <div class="form-check">
+                                            <input [(ngModel)]="students[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
+                                            <label  class="form-check-label" for="{{item3.id}}">
+                                                {{item3.first_name}}
                                             </label>
+                                        </div>
                                         }
-                                        @else {
-                                            <input [(ngModel)]="subjects[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
-                                            <label  class="form-check-label" for="{{item3.name}}">
-                                                {{item3.question}}
-                                            </label>
-                                        }
-                                    </div>
-                                        
                                     }
                                 }
                             }
-                            
+                            @else {
+                                @for (item2 of getSpecialFields(); track $index) {
+                                            
+                                    @if (item2.collection == capitalize(item.field)) {
+    
+                                        <label class="form-check-label" for="">
+                                            {{item2.collection}}
+                                        </label>
+                                        @for (item3 of item2.items; track $index) {
+                                        <div class="form-check">
+    
+                                            @if(item3.name) {
+                                                <input [(ngModel)]="subjects[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
+                                                <label  class="form-check-label" for="{{item3.id}}">
+                                                    {{item3.name}}
+                                                </label>
+                                            }
+                                            @else {
+                                                <input [(ngModel)]="subjects[item3.id]" name="{{item3.id}}" class="form-check-input" type="checkbox" value="" id="{{item3.id}}">
+                                                <label  class="form-check-label" for="{{item3.id}}">
+                                                    {{item3.question}}
+                                                </label>
+                                            }
+                                        </div>
+                                            
+                                        }
+                                    }
+                                }
+                            }
 
                         }
+                        
                         @else {
 
                         <div class="mb-3">
                             <label for="{{item.field}}" class="form-label">{{item.field}}</label>
                             <input [(ngModel)]="camposValores[item.field]" name="{{item.field}}" type="text"
-                                class="form-control" id="{{item.field}}" placeholder="Enter a {{item.field}}">
+                                class="form-control" id="{{item.field}}" placeholder="Enter a {{item.field}} ddd">
                         </div>
                         }
                     }

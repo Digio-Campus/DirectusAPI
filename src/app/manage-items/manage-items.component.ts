@@ -1,44 +1,31 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DirectusService } from '../directus.service';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-manage-items',
   standalone: true,
-  imports: [FormsModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './manage-items.component.html',
 
 })
-export class ManageItemsComponent implements ControlValueAccessor {
+export class ManageItemsComponent {
 
   value: string = '';
-
-  onChange: any = () => { };
-  onTouched: any = () => { };
-
-  prueba: any;
-
-  testeando: any;
 
   @Input() collection: any;
   @Output() respuesta = new EventEmitter<string>();
 
-  private fetchedItems = false;
-  private specialFields = ['m2o', 'm2m'];
-  // @Output() respuesta = new EventEmitter<boolean>();
-
-  // @ViewChild('miModal2') miModal!: ElementRef;
-  // @ViewChild('miModal2') miModal2!: ElementRef;
   @ViewChild('contenedor') contenedor!: ElementRef;
   camposValores: any = {};
   subjects: any = {};
+  students: any = {};
 
   // @Input() respuesta:any = false;
   private mensajeError = "";
 
 
   constructor(private directusService: DirectusService) {
-    console.log("pruebaaaaaaaba: " + this.prueba)
 
     console.log("ESTO ES UNA PRUEBA  " + this.directusService.getSpecialFields())
   }
@@ -48,14 +35,16 @@ export class ManageItemsComponent implements ControlValueAccessor {
 
   }
 
-
   // Metodo para crear un objeto de una entidad
   createItem() {
 
+    // Creamos un nuevo objeto que contendra los campos y valores rellenados del formulario
     let newObject = this.camposValores;
 
+    // Si hay logo, lo añadimos al objeto
     this.camposValores.logo = this.getFileID();
 
+    // Solicitud post para añadir el objeto a la entidad
     this.directusService.createItem(this.collection, newObject).
       subscribe((response1: any) => {
 
@@ -64,55 +53,89 @@ export class ManageItemsComponent implements ControlValueAccessor {
         this.respuesta.emit("1");
         this.mensajeError = "Item creado con éxito";
 
-        console.log("PRUEBA DE GETCOLLECTIONITEMS EN FETCH: " + JSON.stringify(this.directusService.getCollectionItems()))
+        // Guardamos el nuevo objeto actualizado en la lista de objetos de la entidad
         this.directusService.getCollectionItems().push(response1.data);
 
+        // Recorremos los campos especiales de la entidad
         this.directusService.getSpecialFields().forEach(e => {
 
+
+          // Si el campo es de tipo m2m deberemos de añadir tambien un objeto en la tabla intermedia
           if (e.special == 'm2m') {
 
             let field = this.capitalize(e.field);
 
             let m2mField = e.field;
 
+            if (field == "Students" || field == "Teachers") {
 
-            Object.keys(this.subjects).forEach((e: any) => {
-
-              let obj = {
-                [this.collection + "_id"]: response1.data.id,
-                [field + "_id"]: e
-              }
-              this.directusService.createItem(this.collection + "_" + field, obj).subscribe((response: any) => {
-
-                this.directusService.getCollectionItems().forEach(e => {
-                  console.log("bucle for: " + e.id)
-
-                  console.log("PRUEBA RESPONSE 1: " + JSON.stringify(response1.data))
-                  // console.log("response.data.id " + response.data[this.collection + "_id"]);
-
-                  if(e.id == response.data[this.collection + "_id"]) {
-                    console.log("ENCONTRADO: " + e.id)
-
-                    e[m2mField] = [...e[m2mField], response.data.id];
-                    this.respuesta.emit("1");
-
-                    console.log("TESTING E SUBJECTS: " + e.subjects)
-
-                    // console.log("TESTTTTTTTT: " + this.directusService.getCollectionItems()[e])
-                  }
-                });
-                this.respuesta.emit("1");
-                // this.mensajeError = "Item creado con éxito";
-
-
-              },
-                (error: any) => {
-                  // console.error('Error al crear el item:', error);
-                  this.respuesta.emit("2");
-                  // this.mensajeError = "Error al crear el item: " + error.data;
+              Object.keys(this.students).forEach((e: any) => { 
+                // Creamos un nuevo objeto cuyas keys seran el id de la entidad y el id del campo m2m 
+                let obj = {
+                  [this.collection + "_id"]: response1.data.id,
+                  ["directus_users_id"]: e
                 }
-              )
-            });
+                this.directusService.createItem(this.collection + "_" + "directus_users", obj).subscribe((response: any) => {
+  
+                  this.directusService.getCollectionItems().forEach(e => {
+  
+                    if (e.id == response.data[this.collection + "_id"]) {
+                      e[m2mField] = [...e[m2mField], response.data.id];
+                      this.respuesta.emit("1");
+                    }
+                  });
+                  this.respuesta.emit("1");
+                  // this.mensajeError = "Item creado con éxito";
+  
+  
+                },
+                  (error: any) => {
+                    // console.error('Error al crear el item:', error);
+                    this.respuesta.emit("2");
+                    // this.mensajeError = "Error al crear el item: " + error.data;
+                  }
+                );
+
+              });
+            }
+            else {
+              Object.keys(this.subjects).forEach((e: any) => {
+
+                console.log("ESTO ES UNA PRUEBAAAAAA: " + field)
+
+                // Creamos un nuevo objeto cuyas keys seran el id de la entidad y el id del campo m2m 
+                let obj = {
+                  [this.collection + "_id"]: response1.data.id,
+                  [field + "_id"]: e
+                }
+                this.directusService.createItem(this.collection + "_" + field, obj).subscribe((response: any) => {
+
+                  this.directusService.getCollectionItems().forEach(e => {
+
+                    if (e.id == response.data[this.collection + "_id"]) {
+                      e[m2mField] = [...e[m2mField], response.data.id];
+                      this.respuesta.emit("1");
+                    }
+                  });
+                  this.respuesta.emit("1");
+                  // this.mensajeError = "Item creado con éxito";
+
+
+                },
+                  (error: any) => {
+                    // console.error('Error al crear el item:', error);
+                    this.respuesta.emit("2");
+                    // this.mensajeError = "Error al crear el item: " + error.data;
+                  }
+                );
+
+
+
+
+              });
+            }
+
+
           }
         });
       },
@@ -122,7 +145,6 @@ export class ManageItemsComponent implements ControlValueAccessor {
           this.mensajeError = "Error al crear el item: " + error.data;
         }
       );
-    console.log("TESTEANDO: " + this.testeando)
   }
 
   // Metodo para manejar la subida de archivos
@@ -241,16 +263,16 @@ export class ManageItemsComponent implements ControlValueAccessor {
     }
   }
 
-  writeValue(value: string): void {
-    this.value = value;
-  }
+  // writeValue(value: string): void {
+  //   this.value = value;
+  // }
 
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
+  // registerOnChange(fn: any): void {
+  //   this.onChange = fn;
+  // }
 
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
+  // registerOnTouched(fn: any): void {
+  //   this.onTouched = fn;
+  // }
 
 }

@@ -66,6 +66,8 @@ export class DirectusService {
         next: ((response: any) => {
           this.collections = response.data;
 
+          console.log("FETCH COLLECTIONS: " + JSON.stringify(response.data))
+
           // Guardamos la colección en el sessionStorage
           // sessionStorage.setItem("collections", JSON.stringify(response.data))
         }),
@@ -86,6 +88,10 @@ export class DirectusService {
 
     this.specialFields = [];
 
+    if (collection == 'Students') {
+      collection = 'directus_users';
+    }
+
     // Nos suscribimos a todos los campos de la coleccion.
     this.httpClient.get(this.urlFields + "fields/" + collection)
       .subscribe((response: any) => {
@@ -94,95 +100,126 @@ export class DirectusService {
         this.fields = response.data;
         const translationsArray: any = [];
 
-        
+
         response.data.forEach((e: any) => {
-        //   if (e.meta.translations != null) {
-        //     // console.log("Entidad: " + e.collection + " traducciones " + e.meta.translations[0].translation)
-        //     translationsArray.push(e.meta.translations);
-        //     localStorage.setItem("fields", JSON.stringify(response.data))
+          //   if (e.meta.translations != null) {
+          //     // console.log("Entidad: " + e.collection + " traducciones " + e.meta.translations[0].translation)
+          //     translationsArray.push(e.meta.translations);
+          //     localStorage.setItem("fields", JSON.stringify(response.data))
 
 
-        // Comprobamos si los campos tienen otros campos relacionados..
-        if (e.meta.special && e.meta.special != 'uuid' && e.meta.special != 'date-created' && e.meta.special != 'date-updated' && e.meta.special != 'file' && e.meta.field != 'students') {
-          // console.log("ESPECIAL DESDE FETCHFIELDS: " + JSON.stringify(e.meta.special))
+          // Comprobamos si los campos tienen otros campos relacionados..
+          if (e.meta.special && e.meta.special != 'uuid' && e.meta.special != 'date-created' && e.meta.special != 'date-updated' && e.meta.special != 'file') {
+            // console.log("ESPECIAL DESDE FETCHFIELDS: " + JSON.stringify(e.meta.special))
 
-          // TODO: Faltaria controlar el campo students, debemos de traer directus_users
+            // TODO: Faltaria controlar el campo students, debemos de traer directus_users
 
-          // Si los campos tienen otros campos relacionados deberemos de obtener los nombres de dichas colecciones:
+            // Si los campos tienen otros campos relacionados deberemos de obtener los nombres de dichas colecciones:
 
-          let msg = e.meta.field;
-          msg = msg.charAt(0).toUpperCase() + msg.slice(1);
-          console.log("MSG: " + msg)
+            let msg = e.meta.field;
+            msg = msg.charAt(0).toUpperCase() + msg.slice(1);
+            console.log("MSG: " + msg)
 
+            if (msg == 'Students' || msg == 'Teachers') {
 
-          this.httpClient.get(this.urlBase + msg)
-          .subscribe({
-            next: ((response: any) => {
-              // this.collectionItems = response.data;
-              // console.log("PRUEBA DE SEGUNDO FETCH:    " + JSON.stringify(response.data))
+              console.log("DENTRO IF!!!!!")
+              // msg = 'directus_users';
 
-              console.log("ESPECIALLLLLLLLL ------------> " + JSON.stringify(e.meta.field))
+              this.httpClient.get(this.base + "users")
+                .subscribe({
+                  next: ((response: any) => {
+                    // this.collectionItems = response.data;
+                    // console.log("PRUEBA DE SEGUNDO FETCH:    " + JSON.stringify(response.data))
 
-              // Creamos un objeto que contendra el nombre de la collecion y sus objetos.
-              let newObj = {
-                collection: msg,
-                special: e.meta.special,
-                items: response.data,
-                field: e.meta.field
-              }
-              this.specialFields.push(newObj)
+                    console.log("ESPECIALLLLLLLLL ------------> " + JSON.stringify(e.meta.field))
 
-              console.log("-----------------------------------------")
-    
-            }),
-            error: (error => {
-              console.error("ERROR: " + error);
-            })
-    
-          });
+                    // Creamos un objeto que contendra el nombre de la collecion y sus objetos.
+                    let newObj = {
+                      collection: msg,
+                      special: e.meta.special,
+                      items: response.data,
+                      field: e.meta.field
+                    }
+                    this.specialFields.push(newObj)
 
+                    console.log("-----------------------------------------")
 
+                  }),
+                  error: (error => {
+                    console.error("ERROR: " + error);
+                  })
 
+                });
+            }
+            else {
+              let msg = e.meta.field;
+              msg = msg.charAt(0).toUpperCase() + msg.slice(1);
+              console.log("DENTRO ELSE!!!!!")
 
+              this.httpClient.get(this.urlBase + msg)
+                .subscribe({
+                  next: ((response: any) => {
+                    // this.collectionItems = response.data;
+                    // console.log("PRUEBA DE SEGUNDO FETCH:    " + JSON.stringify(response.data))
 
-        }
+                    console.log("ESPECIALLLLLLLLL ------------> " + JSON.stringify(e.meta.field))
 
+                    // Creamos un objeto que contendra el nombre de la collecion y sus objetos.
+                    let newObj = {
+                      collection: msg,
+                      special: e.meta.special,
+                      items: response.data,
+                      field: e.meta.field
+                    }
+                    this.specialFields.push(newObj)
 
+                    console.log("-----------------------------------------")
 
-        //     // Si dispone de un campo especial, debemos de conseguir los objetos de esa coleccion.
-        //     if (e.meta.special) {
+                  }),
+                  error: (error => {
+                    console.error("ERROR: " + error);
+                  })
 
-        //       if (e.meta.special && !e.meta.special.includes('date_created') && !e.meta.special.includes('date_updated') && e.meta.special && !e.meta.special.includes('date_created') && !e.meta.special.includes('date_updated')) {
-
-        //         console.log("wefwefwefwef " + e.meta.field)
-        //         this.specialFields.push(e.meta.field)
-                
-              
-
-        //       this.httpClient.get(this.urlBase + e.meta.field)
-        //         .subscribe({
-        //           next: ((response: any) => {
-
-        //             console.log("CUAL ES LA COLECCION?    " + e.meta.field)
-        //             this.specialFields.push(JSON.stringify(response.data))
-
-        //           }),
-        //           error: (error => {
-        //             console.error("ERROR: " + error);
-        //             console.log("ERROR CAPTURADO!")
-        //           })
-
-        //         });
-
-        //       // let objColeccion = {}
-        //       // this.specialFields.push(e.field);
-
-        //       // console.log("ESPECIAL DESDE FETCHFIELDS: " + JSON.stringify(this.specialFields))
-        //     }
+                });
+            }
+          }
 
 
-        //   }
-        // }
+
+          //     // Si dispone de un campo especial, debemos de conseguir los objetos de esa coleccion.
+          //     if (e.meta.special) {
+
+          //       if (e.meta.special && !e.meta.special.includes('date_created') && !e.meta.special.includes('date_updated') && e.meta.special && !e.meta.special.includes('date_created') && !e.meta.special.includes('date_updated')) {
+
+          //         console.log("wefwefwefwef " + e.meta.field)
+          //         this.specialFields.push(e.meta.field)
+
+
+
+          //       this.httpClient.get(this.urlBase + e.meta.field)
+          //         .subscribe({
+          //           next: ((response: any) => {
+
+          //             console.log("CUAL ES LA COLECCION?    " + e.meta.field)
+          //             this.specialFields.push(JSON.stringify(response.data))
+
+          //           }),
+          //           error: (error => {
+          //             console.error("ERROR: " + error);
+          //             console.log("ERROR CAPTURADO!")
+          //           })
+
+          //         });
+
+          //       // let objColeccion = {}
+          //       // this.specialFields.push(e.field);
+
+          //       // console.log("ESPECIAL DESDE FETCHFIELDS: " + JSON.stringify(this.specialFields))
+          //     }
+
+
+          //   }
+          // }
 
         });
 
@@ -227,27 +264,42 @@ export class DirectusService {
       console.log("ELEMENTO: " + element.collection + " " + element.id + " " + element.field + " ESPECIAL: " + element.meta.special)
 
       // Si el campo es m2m, significa que deberemos tambien borrar los elementos de la tabla intermedia.
-      if(element.meta.field != 'students' && element.meta.special == 'm2m') {
+      if (element.meta.special == 'm2m') {
 
-        console.log("THIS COLLECTION ITEMS: " + JSON.stringify(this.collectionItems))
 
-        // Obtenemos los elementos de la tabla intermedia
-        this.httpClient.get(this.urlBase + collection + "_" + this.capitalize(element.meta.field)).subscribe((res: any) => { 
+        if (element.meta.field == 'students' || element.meta.field == 'teachers') {
+          // Obtenemos los elementos de la tabla intermedia
+          this.httpClient.get(this.urlBase + collection + "_" + "directus_users").subscribe((res: any) => {
 
-          // Recorremos los elementos de la tabla intermedia
-          res.data.forEach((e:any) => {
+            // Recorremos los elementos de la tabla intermedia
+            res.data.forEach((e: any) => {
 
-            // Si el id de la coleccion actual es igual al id del elemento de la tabla intermedia, borramos el elemento.
-            if(e[collection + "_id"] == id) {
+              // Si el id de la coleccion actual es igual al id del elemento de la tabla intermedia, borramos el elemento.
+              if (e[collection + "_id"] == id) {
 
-              this.httpClient.delete('http://localhost:8055/items/' + collection + "_" + this.capitalize(element.meta.field) + '/' + e.id).subscribe();
-            }
+                this.httpClient.delete('http://localhost:8055/items/' + collection + "_" + "directus_users" + '/' + e.id).subscribe();
+              }
+            });
           });
-        });
+        }
+        else {
+          // Obtenemos los elementos de la tabla intermedia
+          this.httpClient.get(this.urlBase + collection + "_" + this.capitalize(element.meta.field)).subscribe((res: any) => {
 
+            // Recorremos los elementos de la tabla intermedia
+            res.data.forEach((e: any) => {
+
+              // Si el id de la coleccion actual es igual al id del elemento de la tabla intermedia, borramos el elemento.
+              if (e[collection + "_id"] == id) {
+
+                this.httpClient.delete('http://localhost:8055/items/' + collection + "_" + this.capitalize(element.meta.field) + '/' + e.id).subscribe();
+              }
+            });
+          });
+        }
       }
     });
-    
+
     return this.httpClient.delete('http://localhost:8055/items/' + collection + '/' + id);
   }
 
@@ -325,7 +377,7 @@ export class DirectusService {
   getFileID() {
     return this.fileID;
   }
-  
+
   getSpecialFields() {
     return this.specialFields;
   }
